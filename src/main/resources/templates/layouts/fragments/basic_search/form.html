@@ -1,0 +1,39 @@
+<th:block th:fragment="basic_search_form">
+    <basic-search-form inline-template>
+        <div>
+            <form id="search_form" class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-200 navbar-search">
+                <div class="input-group" style="width: 700px;">
+                    <input type="text" v-model="input.text" @keyup="searchKeyUp" class="form-control bg-light border-0" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                    <select class="form-control" v-model="input.type">
+                        <option value="name">Name</option>
+                        <option value="location">Location</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" disabled style="display: none" aria-hidden="true"></button>
+                        <button type="button" class="btn btn-primary" @click="search">
+                            <i class="fas fa-search fa-sm"></i>
+                        </button>
+                    </div>
+
+                    <button type="button" @click="openAdvancedSearch" class="btn btn-primary" style="margin-left: 10px;">
+                        Advanced search
+                    </button>
+
+                    <button type="button" @click="showImageMode(1)" class="btn btn-primary" style="margin-left: 10px;" title="Show preview">
+                        <i class="fa fa-video"> </i>
+                    </button>
+
+                    <button type="button" @click="showImageMode(2)" class="btn btn-primary" style="margin-left: 10px;" title="Show cover">
+                        <i class="fa fa-image"> </i>
+                    </button>
+
+                    <button type="button" @click="changeCheckboxesNavbar('N')" class="btn btn-info btn-sm" title="N - Not viewed" style="margin-left: 10px;"> N </button>
+
+                    <button type="button" @click="changeCheckboxesNavbar('B')" class="btn btn-info btn-sm" title="B - Best" style="margin-left: 10px;"> B </button>
+
+                    <button type="button" @click="changeCheckboxesNavbar('A')" class="btn btn-info btn-sm" title="A - All" style="margin-left: 10px;"> A </button>
+                </div>
+            </form>
+        </div>
+    </basic-search-form>
+</th:block>

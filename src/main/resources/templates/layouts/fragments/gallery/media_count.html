@@ -1,0 +1,21 @@
+<th:block th:fragment="media_count">
+    <script type="text/x-template" id="media-count-template">
+        <h1 class="h3 mb-2 text-gray-800">Media ({{ media_count }})</h1>
+    </script>
+
+    <script type="text/javascript">
+        Vue.component("media-count", {
+            template: '#media-count-template',
+            data : function () {
+                return {
+                    media_count: 0
+                };
+            },
+            mounted: function() {
+                this.$root.$on('render-media-count', (media_count) => {
+                    this.media_count = media_count;
+                });
+            }
+        });
+    </script>
+</th:block>

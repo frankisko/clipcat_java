@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.frankisko.clipcat.dao.MediaMetadataMapper">
+
+    <insert id="insert">
+
+        INSERT INTO media_metadata(id_media, id_metadata)
+        VALUES(#{idMedia}, #{idMetadata})
+
+    </insert>
+
+    <insert id="inserts">
+
+        INSERT INTO media_metadata(
+            id_media, id_metadata
+        )
+        SELECT #{idMedia}, metadata.id_metadata
+        FROM metadata
+        WHERE metadata.type = #{type}
+        AND metadata.name IN
+        <foreach collection="metadata" open="(" close=")" item="rowName" separator=",">
+            #{rowName}
+        </foreach>
+        AND metadata.id_collection = #{idCollection}
+
+    </insert>
+
+    <insert id="insertIfNeededBulk">
+
+        INSERT OR IGNORE INTO media_metadata(
+            id_media, id_metadata
+        )
+        SELECT #{idMedia}, metadata.id_metadata
+        FROM metadata
+        WHERE metadata.type = #{type}
+        AND metadata.name IN
+        <foreach collection="metadata" open="(" close=")" item="rowName" separator=",">
+            #{rowName}
+        </foreach>
+        AND metadata.id_collection = #{idCollection}
+
+    </insert>
+
+    <delete id="deleteByIdMediaAndType">
+
+        DELETE
+        FROM media_metadata
+        WHERE media_metadata.id_media = #{idMedia}
+        AND media_metadata.id_metadata IN (
+            SELECT metadata.id_metadata
+            FROM metadata
+            WHERE metadata.type = #{type}
+        )
+
+    </delete>
+
+    <delete id="deleteByIdMedia">
+
+        DELETE
+        FROM media_metadata
+        WHERE media_metadata.id_media = #{idMedia}
+
+    </delete>
+
+    <delete id="deleteByIdMetadata">
+
+        DELETE
+        FROM media_metadata
+        WHERE media_metadata.id_metadata = #{idMetadata}
+
+    </delete>
+
+    <delete id="deleteByIdCollection">
+
+        DELETE
+        FROM media_metadata
+        WHERE media_metadata.id_media IN (
+            SELECT media.id_media
+            FROM media
+            WHERE media.id_collection = #{idCollection}
+        )
+
+    </delete>
+
+</mapper>

@@ -1,0 +1,49 @@
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar" th:fragment="sidebar">
+
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/collection/main">
+        <div class="sidebar-brand-text mx-3">Clipcat</div>
+    </a>
+
+    <hr class="sidebar-divider my-0">
+
+    <li class="nav-item" th:classappend="${activeMenu == 'collections'}? 'active' : ''">
+        <a class="nav-link" th:href="@{'/collections/index'}">
+            <i class="fa fa-database"></i>
+            <span>Collections</span>
+        </a>
+    </li>
+
+    <li class="nav-item" th:classappend="${activeMenu == 'scrap'}? 'active' : ''">
+        <a class="nav-link" th:href="@{'/collections/' + ${idCollection} + '/scrap'}" target="_blank">
+            <i class="fas fa-fw fa-sync"></i>
+            <span>Scrap</span>
+        </a>
+    </li>
+
+    <li class="nav-item" th:classappend="${activeMenu == 'gallery'}? 'active' : ''">
+        <a class="nav-link" th:href="@{/media/index}">
+            <i class="fas fa-fw fa-th"></i>
+            <span>Gallery</span>
+        </a>
+    </li>
+
+    <li class="nav-item" th:classappend="${activeMenu == 'statistics'}? 'active' : ''">
+        <a class="nav-link" th:href="@{/media/statistics}">
+            <i class="fas fa-fw fa-table"></i>
+            <span>Statistics</span>
+        </a>
+    </li>
+
+    <li class="nav-item" th:classappend="${activeMenu == 'metadata'}? 'active' : ''">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMetadata" aria-expanded="true" aria-controls="collapseMetadata">
+            <i class="fas fa-fw fa-tag"></i>
+            <span>Metadata</span>
+        </a>
+        <div id="collapseMetadata" class="collapse" aria-labelledby="headingMetadata" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" th:href="@{/metadata/index(type=group)}">Groups</a>
+                <a class="collapse-item" th:href="@{/metadata/index(type=tag)}">Tags</a>
+            </div>
+        </div>
+    </li>
+</ul>

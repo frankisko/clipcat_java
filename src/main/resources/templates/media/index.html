@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Media gallery</title>
+    <link href="/vendor/multiselect/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .image-mode {
+            color: cornflowerblue;
+            height: 100%;
+        }
+
+        .cardVideo {
+            width: 20%;
+        }
+
+        .cardCover {
+            width: 13%;
+        }
+
+        .star-full {
+            color: #EEEE00;
+            text-shadow: 0 0 5px #000;
+        }
+
+        .active-icon {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <th:block layout:fragment="sidebar" th:insert="~{layouts/fragments/common/sidebar :: sidebar}"></th:block>
+
+    <th:block layout:fragment="topbar" th:insert="~{layouts/fragments/common/topbar :: topbar}"></th:block>
+
+    <th:block layout:fragment="content">
+        <media-count></media-count>
+        <spinner-container></spinner-container>
+        <media-cards></media-cards>
+    </th:block>
+
+    <th:block layout:fragment="scripts_footer">
+        <script src="/vendor/jquery-quicksearch/jquery.quicksearch.js" type="text/javascript"></script>
+        <script src="/vendor/multiselect/js/jquery.multi-select.js" type="text/javascript"></script>
+
+        <th:block th:insert="~{layouts/fragments/common/multiselect :: multiselect}"></th:block>
+
+        <th:block th:insert="~{layouts/fragments/gallery/media_count :: media_count}"></th:block>
+        <th:block th:insert="~{layouts/fragments/gallery/video_preview :: video_preview}"></th:block>
+        <th:block th:insert="~{layouts/fragments/gallery/media_cards :: media_cards}"></th:block>
+        <th:block th:insert="~{layouts/fragments/gallery/spinner_container :: spinner_container}"></th:block>
+
+        <th:block th:insert="~{layouts/fragments/basic_search/script :: basic_search_script}"></th:block>
+        <th:block th:insert="~{layouts/fragments/advanced_search/script :: advanced_search_script}"></th:block>
+    </th:block>
+</body>
+</html>

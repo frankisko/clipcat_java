@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Media info</title>
+</head>
+
+<body>
+    <th:block layout:fragment="sidebar" th:insert="~{layouts/fragments/common/sidebar :: sidebar}"></th:block>
+
+    <th:block layout:fragment="content">
+        <h1 class="h3 mb-2 text-gray-800">Info</h1>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <div class="text-left">
+                                <span><a href="#">Media</a></span>
+                            </div>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <th:block th:if="${data.hasCover == 1}">
+                                    <img th:src="@{/covers?idCollection={idCollection}&idMedia={idMedia}(idCollection=${data.idCollection}, idMedia=${data.idMedia})}" class="card-img-top" style="width:auto;" />
+                                </th:block>
+                                <th:block th:unless="${data.hasCover == 1}">
+                                    <img src="/images/no_preview.jpg" class="card-img-top">
+                                </th:block>
+                            </div>
+                            <div class="col-lg-4">
+                                <table class="table">
+                                    <tr>
+                                        <td>Id</td>
+                                        <td th:text="${data.idMedia}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Location</td>
+                                        <td th:text="${data.location}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td th:text="${data.name}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Size</td>
+                                        <td th:text="${data.size}" class="filesize"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duration</td>
+                                        <td th:text="${data.minutesDuration} + ' min'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Created at</td>
+                                        <td th:text="${data.createdAt != null} ? ${#dates.format(data.createdAt * 1000, 'yyyy-MM-dd HH:mm:ss')} : ' '"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Release date</td>
+                                        <td th:text="${data.releaseDate != null} ? ${#dates.format(data.releaseDate * 1000, 'yyyy-MM-dd')} : ' '"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>View count</td>
+                                        <td th:text="${data.viewCount}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last viewed</td>
+                                        <td th:text="${data.lastViewed != null} ? ${#dates.format(data.lastViewed * 1000, 'yyyy-MM-dd HH:mm:ss')} : 'Never'"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Collection name</td>
+                                        <td th:text="${data.collectionName}"></td>
+                                    </tr>
+                                </table>
+                                <p>
+                                    <a th:href="@{'/media/' + ${data.idMedia}+ '/unscrap'}" class="btn btn-danger">
+                                        Delete scrapping
+                                    </a>
+                                </p>
+                            </div>
+                            <div class="col-lg-4">
+                                <th:block th:if="${data.scrapped == 1}">
+                                    <video-preview
+                                        th:attr="thumbnail-url='/images?idCollection=' + ${data.idCollection} + '&idMedia=' + ${data.idMedia},
+                                                cover-url='/covers?idCollection=' + ${data.idCollection} + '&idMedia=' + ${data.idMedia},
+                                                video-url='/previews?idCollection=' + ${data.idCollection} + '&idMedia=' + ${data.idMedia},
+                                                id-media=${data.idMedia}">
+                                    </video-preview>
+                                </th:block>
+                                <th:block th:unless="${data.scrapped == 1}">
+                                    <img src="/images/no_preview.jpg" class="card-img-top">
+                                </th:block>
+                                <p th:text="${data.description}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <div class="text-left">
+                        <span><a href="#">URL</a></span>
+                    </div>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form th:action="@{'/media/' + ${data.idMedia} + '/url' }" th:object="${mediaUrlRecord}" method="POST" role="form" class="form">
+                            <input type="text" name="url" class="form-control" aria-describedby="urlHelp" placeholder="" th:field="*{url}">
+                            <small id="urlHelp" class="form-text text-muted">Write url.</small>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend ="${tab == 'group'}? 'active'" id="groups-tab" data-toggle="tab" href="#group" role="tab" aria-controls="groups" th:aria-selected="${tab == 'group'}? true : false">Groups (<th:block th:text="${#lists.size(data.groupsMetadata)}"></th:block>)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend ="${tab == 'tag'}? 'active'" id="tags-tab" data-toggle="tab" href="#tag" role="tab" aria-controls="tags" th:aria-selected="${tab == 'tag'}? true : false">Tags (<th:block th:text="${#lists.size(data.tagsMetadata)}"></th:block>)</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade" th:classappend ="${tab == 'group'}? 'show active'" id="group" role="tabpanel" aria-labelledby="groups-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-lg-12">
+                                        <span>
+                                            <th:block th:if="${#lists.size(data.groupsMetadata)} gt 0">
+                                                Current groups:
+
+                                                <span th:each="row : ${data.groupsMetadata}"
+                                                      th:text="${row.name}"
+                                                      class="badge badge-info">
+                                                </span>
+                                            </th:block>
+                                        </span>
+                                        <th:block th:if="${#lists.size(data.groupsMetadata)} gt 0">
+                                            <br />
+                                            <br />
+                                            <copy-to-clipboard-button th:attr="clipboard-text=${metadataClipboard.groups}">
+                                            </copy-to-clipboard-button>
+                                        </th:block>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="card shadow mb-4">
+                                            <div class="card-header py-3">
+                                                <h6 class="m-0 font-weight-bold text-primary">
+                                                    <div class="text-left">
+                                                        <span><a href="#">Edit by selection</a></span>
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <form th:action="@{'/media/' + ${data.idMedia} + '/group/select' }"  method="POST" role="form" class="metadata-form">
+                                                    <div class="form-group">
+                                                        <multi-select inline-template>
+                                                            <select class="form-control" name="ids" aria-describedby="groupsSelectHelp" multiple>
+                                                                <option th:each="row : ${metadata.groups}"
+                                                                        th:value="${row.id}"
+                                                                        th:selected="${#lists.contains(metadataSelected.groups, row.id)}"
+                                                                        th:text="${row.name}">
+                                                                </option>
+                                                            </select>
+                                                        </multi-select>
+                                                        <small id="groupsSelectHelp" class="form-text text-muted">Select the groups.</small>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="card shadow mb-4">
+                                            <div class="card-header py-3">
+                                                <h6 class="m-0 font-weight-bold text-primary">
+                                                    <div class="text-left">
+                                                        <span><a href="#">Edit by typing</a></span>
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <form th:action="@{'/media/' + ${data.idMedia} + '/group/type' }" method="POST" role="form" class="metadata-form">
+                                                    <div class="form-group">
+                                                        <tags-input name="metadata"
+                                                                    th:attr="data=${metadataClipboard.groups}"
+                                                                    help="groupsTypeHelp">
+                                                        </tags-input>
+                                                        <small id="groupsTypeHelp" class="form-text text-muted">Write groups, separated by "Enter". Missing groups will be created.</small>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" th:classappend ="${tab == 'tag'}? 'show active'" id="tag" role="tabpanel" aria-labelledby="tags-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-lg-12">
+                                        <span>
+                                            <th:block th:if="${#lists.size(data.tagsMetadata)} gt 0">
+                                                Current tags:
+
+                                                <span th:each="row : ${data.tagsMetadata}"
+                                                      th:text="${row.name}"
+                                                      class="badge badge-info">
+                                                </span>
+                                            </th:block>
+                                        </span>
+                                        <th:block th:if="${#lists.size(data.tagsMetadata)} gt 0">
+                                            <br />
+                                            <br />
+                                            <copy-to-clipboard-button th:attr="clipboard-text=${metadataClipboard.tags}">
+                                            </copy-to-clipboard-button>
+                                        </th:block>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="card shadow mb-4">
+                                            <div class="card-header py-3">
+                                                <h6 class="m-0 font-weight-bold text-primary">
+                                                    <div class="text-left">
+                                                        <span><a href="#">Edit by selection</a></span>
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <form th:action="@{'/media/' + ${data.idMedia} + '/tag/select' }"  method="POST" role="form" class="metadata-form">
+                                                    <div class="form-group">
+                                                        <multi-select inline-template>
+                                                            <select class="form-control" name="ids" aria-describedby="tagsSelectHelp" multiple>
+                                                                <option th:each="row : ${metadata.tags}"
+                                                                        th:value="${row.id}"
+                                                                        th:selected="${#lists.contains(metadataSelected.tags, row.id)}"
+                                                                        th:text="${row.name}">
+                                                                </option>
+                                                            </select>
+                                                        </multi-select>
+                                                        <small id="tagsSelectHelp" class="form-text text-muted">Select the tags.</small>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="card shadow mb-4">
+                                            <div class="card-header py-3">
+                                                <h6 class="m-0 font-weight-bold text-primary">
+                                                    <div class="text-left">
+                                                        <span><a href="#">Edit by typing</a></span>
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <form th:action="@{'/media/' + ${data.idMedia} + '/tag/type' }" method="POST" role="form" class="metadata-form">
+                                                    <div class="form-group">
+                                                        <tags-input name="metadata"
+                                                                    th:attr="data=${metadataClipboard.tags}"
+                                                                    help="tagsTypeHelp">
+                                                        </tags-input>
+                                                        <small id="tagsTypeHelp" class="form-text text-muted">Write tags, separated by "Enter". Missing tags will be created.</small>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="scripts_footer">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/filesize/9.0.11/filesize.min.js"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $(".filesize").each(function(index, element) {
+                    $(this).text(filesize($(this).text()));
+                });
+            });
+        </script>
+
+        <script src="/vendor/jquery-quicksearch/jquery.quicksearch.js" type="text/javascript"></script>
+        <script src="/vendor/multiselect/js/jquery.multi-select.js" type="text/javascript"></script>
+        <th:block th:insert="~{layouts/fragments/gallery/video_preview :: video_preview}"></th:block>
+        <th:block th:insert="~{layouts/fragments/common/tags_input :: tags_input}"></th:block>
+        <th:block th:insert="~{layouts/fragments/common/multiselect :: multiselect}"></th:block>
+        <th:block th:insert="~{layouts/fragments/common/copy_to_clipboard :: copy_to_clipboard}"></th:block>
+        <th:block th:insert="~{layouts/fragments/common/domain_parse :: domain_parse}"></th:block>
+    </th:block>
+</body>
+</html>

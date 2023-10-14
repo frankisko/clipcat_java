@@ -1,0 +1,109 @@
+<th:block th:fragment="advanced_search_modal">
+    <advanced-search-modal inline-template>
+        <div class="modal fade" id="advancedSearchModal" tabindex="-1" role="dialog" aria-labelledby="advancedSearchModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="advancedSearchModalLabel">Advanced search</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="advanced_text">Search for:</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" v-model="input.text" placeholder="Text">
+                            <div class="input-group-append">
+                                <select class="form-control" v-model="input.type">
+                                    <option value="name">Name</option>
+                                    <option value="location">Location</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label for="advanced_visibility">Visibility</label>
+                            <select class="form-control" v-model="input.visibility" required>
+                                <option value="all">Show all media</option>
+                                <option value="viewed">Show only viewed media</option>
+                                <option value="not_viewed">Show only not viewed media</option>
+                            </select>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <br />
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="0">
+                                <label class="form-check-label" for="ratingCheckbox0">0</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="1">
+                                <label class="form-check-label" for="ratingCheckbox1">1</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="2">
+                                <label class="form-check-label" for="ratingCheckbox2">2</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="3">
+                                <label class="form-check-label" for="ratingCheckbox3">3</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="4">
+                                <label class="form-check-label" for="ratingCheckbox4">4</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" v-model.number="input.rating" value="5">
+                                <label class="form-check-label" for="ratingCheckbox5">5</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <button @click="change_checkboxes('N')" class="btn btn-info btn-sm" title="N - Not viewed">N</button>
+                                &nbsp;&nbsp;<button @click="change_checkboxes('B')" class="btn btn-info btn-sm" title="B - Best">B</button>
+                                &nbsp;&nbsp;<button @click="change_checkboxes('A')" class="btn btn-info btn-sm" title="A - All">A</button>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <ul class="nav nav-tabs" id="myTabSearch" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link" id="groups-tab-search" data-toggle="tab" href="#groups-search" role="tab" aria-controls="groups-search" aria-selected="true">Groups</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tags-tab-search" data-toggle="tab" href="#tags-search" role="tab" aria-controls="tags-search" aria-selected="false">Tags</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContentSearch">
+                                <div class="tab-pane fade" id="groups-search" role="tabpanel" aria-labelledby="groups-tab-search">
+                                    <multi-select inline-template>
+                                        <select class="form-control" multiple>
+                                            <option th:each="row : ${metadata.groups}"
+                                                    th:value="${row.id}"
+                                                    th:text="${row.name}">
+                                            </option>
+                                        </select>
+                                    </multi-select>
+                                </div>
+                                <div class="tab-pane fade show active" id="tags-search"  role="tabpanel" aria-labelledby="tags-tab-search">
+                                    <multi-select inline-template>
+                                        <select class="form-control" multiple>
+                                            <option th:each="row : ${metadata.tags}"
+                                                    th:value="${row.id}"
+                                                    th:text="${row.name}">
+                                            </option>
+                                        </select>
+                                    </multi-select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="search" class="btn btn-primary">Search</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </advanced-search-modal>
+</th:block>

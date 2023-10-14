@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Collections / Scrap</title>
+</head>
+
+<body>
+    <th:block layout:fragment="content">
+        <h1 class="h3 mb-2 text-gray-800">Scrapper</h1>
+
+        <scrap-component inline-template>
+            <div>
+                <div class="progress">
+                    <div id="da-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100" :style="{ width: progressPercentage }"></div>
+                </div>
+
+                <p>Processed media : {{ name }}</p>
+
+                <p>Progress: {{ progress }}%</p>
+
+                <p>Left: {{ left }}</p>
+            </div>
+        </scrap-component>
+    </th:block>
+
+    <th:block layout:fragment="scripts_footer">
+        <script type="text/javascript">
+            Vue.component("scrap-component", {
+                data: function() {
+                    return  {
+                        idCollection: "0",
+                        left: "Pending...",
+                        progress: 0,
+                        name : "Pending..."
+                    };
+                },
+                computed: {
+                    progressPercentage: function () {
+                        return this.progress + "%";
+                    }
+                },
+                methods: {
+                    scrap : function() {
+                        var self = this;
+                        axios.get("/collections/" + self.idCollection + "/process")
+                            .then(function (response) {
+                                if (response.data.left > 0) {
+                                    self.name = response.data.name
+                                    self.left = response.data.left;
+                                    self.progress = response.data.progress
+
+                                    document.title = "Clipcat - Scrapping... " + self.progress + "%";
+
+                                    self.scrap();
+                                } else {
+                                    window.close();
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                    }
+                },
+                mounted: function() {
+                    let url = new URL(window.location.href);
+                    this.idCollection = url.pathname.replace("/collections/", "")
+                                                    .replace("/scrap", "");
+                    this.scrap();
+                }
+            });
+        </script>
+    </th:block>
+</body>
+</html>

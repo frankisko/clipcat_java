@@ -1,0 +1,27 @@
+<th:block th:fragment="media_viewer">
+    <script type="text/x-template" id="open-media-viewer-template">
+        <div @click="openMediaViewer">
+            <img :src="thumbnailUrl" class="card-img-top">
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        Vue.component("open-media-viewer", {
+            props: ["thumbnailUrl", "idMedia"],
+            template : "#open-media-viewer-template",
+            methods: {
+                openMediaViewer: function() {
+                    var self = this;
+
+                    axios.get('/media/' + self.idMedia + '/open')
+                        .then(function (response) {
+                            console.log("done");
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+            }
+        });
+    </script>
+</th:block>

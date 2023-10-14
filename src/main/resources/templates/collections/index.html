@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Collections / Index</title>
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <th:block layout:fragment="content">
+        <h1 class="h3 mb-2 text-gray-800">Collections</h1>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <div class="text-left float-left">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <span><a href="#">Select collection to use</a></span>
+                            </h6>
+                        </div>
+                        <div class="text-right float-right">
+                            <span><a href="/collections/create"><i class="fa fa-plus"></i> Add</a></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <span th:if="${rows.empty}">No records found</span>
+                        <div th:unless="${rows.empty}" class="table-responsive">
+                            <table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Collection</th>
+                                        <th>Name</th>
+                                        <th>Count</th>
+                                        <th>Location</th>
+                                        <th>Last update</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="row : ${rows}">
+                                        <td th:text="${row.idCollection}"></td>
+                                        <td th:text="${row.name}"></td>
+                                        <td th:text="${row.mediaCount}"></td>
+                                        <td th:text="${row.location}"></td>
+                                        <td th:text="${row.updatedAt != null} ? ${#dates.format(row.updatedAt * 1000, 'yyyy-MM-dd HH:mm:ss')} : ' '"></td>
+                                        <td>
+                                            <a th:href="@{'/collections/' + ${row.idCollection}+ '/select'}" title="Gallery">
+                                                <i class="fas fa-fw fa-th"> </i>
+                                            </a>
+                                            &nbsp;&nbsp;
+                                            <a th:href="@{'/collections/' + ${row.idCollection}+ '/edit'}" title="Edit">
+                                                <i class="fa fa-edit"> </i></a>
+                                            &nbsp;&nbsp;
+                                            <a href="#" th:data-href="@{'/collections/' + ${row.idCollection} + '/destroy'}" th:data-name="${row.name}" title="Delete" class="destroy">
+                                                <i class="fa fa-times" style="color: red"> </i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <th:block th:insert="~{layouts/fragments/common/delete_modal :: delete_modal}"></th:block>
+    </th:block>
+
+    <th:block layout:fragment="scripts_footer">
+        <script type="text/javascript">
+            var dataTableConf = {
+                "columnDefs": [
+                    {
+                        "targets": [4,5],
+                        "orderable": false
+                    }
+                ]
+            };
+        </script>
+
+        <th:block th:insert="~{layouts/fragments/common/datatables :: datatables}"></th:block>
+    </th:block>
+</body>
+</html>

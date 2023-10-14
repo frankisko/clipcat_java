@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.frankisko.clipcat.dao.MediaMapper">
+    <resultMap id="mediaStatistic" type="com.frankisko.clipcat.dto.MediaStatistic">
+        <id property="idMedia" column="id_media"/>
+        <result property="name" column="name"/>
+        <result property="size" column="size"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="lastViewed" column="last_viewed"/>
+        <result property="releaseDate" column="release_date"/>
+        <result property="url" column="url"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="rating" column="rating"/>
+        <result property="tagsCount" column="tags_count"/>
+    </resultMap>
+
+    <resultMap id="galleryMedia" type="com.frankisko.clipcat.dto.GalleryMedia">
+        <id property="idMedia" column="id_media"/>
+        <result property="name" column="name"/>
+        <result property="size" column="size"/>
+        <result property="duration" column="duration"/>
+        <result property="humanDuration" column="human_duration"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="lastViewed" column="last_viewed"/>
+        <result property="scrapped" column="scrapped"/>
+        <result property="hasCover" column="has_cover"/>
+        <result property="idCollection" column="id_collection"/>
+        <result property="collectionLocation" column="collection_location"/>
+        <result property="idLocation" column="id_location"/>
+        <result property="location" column="location"/>
+        <result property="groupsCount" column="groups_count"/>
+        <result property="tagsCount" column="tags_count"/>
+    </resultMap>
+
+    <resultMap id="mediaInfo" type="com.frankisko.clipcat.dto.MediaInfo">
+        <id property="idMedia" column="id_media"/>
+        <result property="name" column="name"/>
+        <result property="size" column="size"/>
+        <result property="duration" column="duration"/>
+        <result property="minutesDuration" column="minutes_duration"/>
+        <result property="scrapped" column="scrapped"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="releaseDate" column="release_date"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="lastViewed" column="last_viewed"/>
+        <result property="description" column="description"/>
+        <result property="hasCover" column="has_cover"/>
+        <result property="url" column="url"/>
+        <result property="location" column="location"/>
+        <result property="idCollection" column="id_collection"/>
+        <result property="collectionName" column="collection_name"/>
+        <collection property="groupsMetadata" column="id_media" select="com.frankisko.clipcat.dao.MetadataMapper.getGroupsMetadataByMedia">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+        </collection>
+        <collection property="tagsMetadata" column="id_media" select="com.frankisko.clipcat.dao.MetadataMapper.getTagsMetadataByMedia">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="mediaDB" type="com.frankisko.clipcat.dto.MediaDB">
+        <id property="idMedia" column="id_media"/>
+        <result property="fullLocation" column="full_location"/>
+        <result property="size" column="size"/>
+    </resultMap>
+
+    <resultMap id="mediaToScrap" type="com.frankisko.clipcat.dto.MediaToScrap">
+        <id property="idMedia" column="id_media"/>
+        <result property="name" column="name"/>
+        <result property="location" column="location"/>
+    </resultMap>
+
+    <select id="getStatistics" resultMap="mediaStatistic">
+
+        SELECT
+            media.id_media, media.name, media.size,
+            media.created_at, media.last_viewed,
+            media.release_date, media.url,
+            media.view_count, media.rating,
+            (
+                SELECT COUNT(1)
+                FROM media_metadata
+                INNER JOIN metadata ON media_metadata.id_metadata = metadata.id_metadata
+                WHERE media_metadata.id_media = media.id_media
+                AND metadata.type = 'tag'
+            ) AS tags_count
+        FROM media
+        WHERE media.id_collection = #{idCollection}
+        ORDER BY media.name ASC
+
+    </select>
+
+    <select id="getInfo" resultMap="mediaInfo">
+
+        SELECT
+            media.id_media, media.name, media.size,
+            media.duration, media.duration / 60 AS minutes_duration,
+            media.created_at, media.release_date, media.view_count, media.last_viewed,
+            media.scrapped, media.url, media.description, media.has_cover,
+            locations.location,
+            collections.id_collection, collections.name AS collection_name
+        FROM media INNER JOIN collections ON media.id_collection = collections.id_collection
+        INNER JOIN locations ON media.id_location = locations.id_location
+        WHERE media.id_media = #{idMedia}
+
+    </select>
+
+    <select id="getGalleryMedia" resultMap="galleryMedia">
+
+        SELECT
+            media.id_media, media.name, media.size, media.duration, media.duration / 60 as human_duration,
+            media.created_at, media.view_count, media.last_viewed,
+            media.id_collection, media.scrapped, media.has_cover,
+            media.rating, collections.location AS collection_location,
+            locations.id_location, locations.location,
+            (
+                SELECT COUNT(1)
+                FROM media_metadata
+                INNER JOIN metadata ON media_metadata.id_metadata = metadata.id_metadata
+                WHERE media_metadata.id_media = media.id_media
+                AND metadata.type = 'group'
+            ) AS groups_count,
+            (
+                SELECT COUNT(1)
+                FROM media_metadata
+                INNER JOIN metadata ON media_metadata.id_metadata = metadata.id_metadata
+                WHERE media_metadata.id_media = media.id_media
+                AND metadata.type = 'tag'
+            ) AS tags_count
+        FROM media INNER JOIN collections ON media.id_collection = collections.id_collection
+        INNER JOIN locations ON media.id_location = locations.id_location
+        WHERE media.id_collection = #{idCollection}
+
+        <if test="filters.text != null">
+            <choose>
+                <when test="filters.type == 'name'">
+                    AND media.name LIKE '%' || #{filters.text} || '%'
+                </when>
+                <when test="filters.type == 'location'">
+                    AND locations.location LIKE '%' || #{filters.text} || '%'
+                </when>
+            </choose>
+        </if>
+
+        <if test="filters.visibility != null">
+            <choose>
+                <when test="filters.visibility == 'viewed'">
+                    <![CDATA[
+                        AND media.view_count > 0
+                    ]]>
+                </when>
+                <when test="filters.visibility == 'not_viewed'">
+                    AND media.view_count = 0
+                </when>
+            </choose>
+        </if>
+
+        <if test="filters.rating != null">
+            AND media.rating IN
+            <foreach item="rating" collection="filters.rating" open="(" separator="," close=")">
+                #{rating}
+            </foreach>
+        </if>
+
+        <if test="filters.metadata != null">
+            <foreach item="idMetadata" collection="filters.metadata">
+                AND (
+                    (
+                        SELECT count(1)
+                        FROM media_metadata
+                        WHERE media.id_media = media_metadata.id_media
+                        AND media_metadata.id_metadata = #{idMetadata}
+                    )  = 1
+                )
+            </foreach>
+        </if>
+
+        ORDER BY locations.location ASC, media.name ASC
+
+    </select>
+
+    <select id="getMediaDB" resultMap="mediaDB">
+
+        SELECT
+            media.id_media, locations.location || '\'  || media.name AS full_location, media.size
+        FROM media  INNER JOIN locations ON media.id_location = locations.id_location
+        WHERE media.id_collection = #{idCollection}
+
+    </select>
+
+    <select id="countMediaInCollection" resultType="Integer">
+
+        SELECT COUNT(1)
+        FROM media
+        WHERE media.id_collection = #{idCollection}
+
+    </select>
+
+    <select id="countPendingMediaInCollection" resultType="Integer">
+
+        SELECT COUNT(1)
+        FROM media
+        WHERE media.id_collection = #{idCollection}
+        AND media.scrapped = 0
+
+    </select>
+
+    <select id="getMediaToScrap" resultMap="mediaToScrap">
+
+        SELECT
+            media.id_media, media.name, locations.location
+        FROM media INNER JOIN locations ON media.id_location = locations.id_location
+        WHERE media.id_collection = #{idCollection}
+        AND media.scrapped = 0
+        LIMIT 1
+
+    </select>
+
+    <insert id="insert">
+
+        INSERT INTO media (
+            name, id_location, size, duration,
+            scrapped, id_collection, last_viewed, view_count,
+            created_at, updated_at, rating, url
+        )
+        VALUES (
+            #{name}, #{location.idLocation}, #{size}, #{duration},
+            #{scrapped}, #{collection.idCollection}, #{lastViewed}, #{viewCount},
+            #{createdAt}, #{updatedAt}, #{rating}, #{url}
+        )
+
+    </insert>
+
+    <update id="update">
+        UPDATE media SET
+        <foreach item="value" index="key" collection="params" separator=",">
+            ${key} = #{value}
+        </foreach>
+        WHERE media.id_media = #{idMedia}
+    </update>
+
+    <update id="scrapMediaBulk">
+
+        UPDATE media SET
+            scrapped = 1
+        WHERE media.id_media IN
+        <foreach item="id" collection="idsMedia" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
+    </update>
+
+    <update id="unscrapAll">
+
+        UPDATE media SET
+            scrapped = 0
+        WHERE media.id_collection = #{idCollection}
+
+    </update>
+
+    <delete id="delete">
+
+        DELETE
+        FROM media
+        WHERE media.id_media = #{idMedia}
+
+    </delete>
+
+    <delete id="deleteByIdCollection">
+
+        DELETE
+        FROM media
+        WHERE media.id_collection = #{idCollection}
+
+    </delete>
+
+</mapper>

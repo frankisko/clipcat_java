@@ -1,0 +1,27 @@
+server:
+    port: 8091 # port number
+spring:
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:sqlite:./src/main/resources/db.sqlite
+        username:
+        password:
+        driver-class-name: org.sqlite.JDBC
+    mvc:
+        hiddenmethod:
+            filter:
+                enabled: true
+    thymeleaf:
+        cache: false
+    servlet:
+        multipart:
+            max-file-size: 100MB
+    devtools:
+        restart:
+            enabled: true
+api_url: http://localhost:8091/api
+viewer: D:/Files/apps/PortableApps/PortableApps/VLCPortable/VLCPortable.exe
+ffmpeg: D:/Files/apps/FFMPEG/bin/ffmpeg.exe
+ffmpeg_probe: D:/Files/apps/FFMPEG/bin/ffmpeg_probe.exe
+data_directory: saralicesoft/clipcat
+

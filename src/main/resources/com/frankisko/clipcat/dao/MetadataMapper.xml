@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.frankisko.clipcat.dao.MetadataMapper">
+    <resultMap id="metadataRow" type="com.frankisko.clipcat.dto.MetadataRow">
+        <id property="idMetadata" column="id_metadata"/>
+        <result property="name" column="name"/>
+        <result property="mediaCount" column="media_count"/>
+    </resultMap>
+
+    <resultMap id="metadataRecord" type="com.frankisko.clipcat.dto.MetadataRecord">
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+    </resultMap>
+
+    <resultMap id="catalog" type="com.frankisko.clipcat.dto.Catalog">
+        <id property="id" column="id_metadata"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="getAllByType" resultMap="metadataRow">
+
+        SELECT
+            metadata.id_metadata, metadata.name,
+            (
+                SELECT COUNT(1)
+                FROM media_metadata
+                WHERE media_metadata.id_metadata = metadata.id_metadata
+            ) AS media_count
+        FROM metadata
+        WHERE metadata.id_collection = #{idCollection}
+        AND metadata.type = #{type}
+        ORDER BY metadata.name ASC
+
+    </select>
+
+    <select id="getById" resultMap="metadataRecord">
+
+        SELECT
+            metadata.name, metadata.type
+        FROM metadata
+        WHERE metadata.id_metadata = #{idMetadata}
+
+    </select>
+
+    <select id="getCatalogByType" resultMap="catalog">
+
+        SELECT
+            metadata.id_metadata, metadata.name
+        FROM metadata
+        WHERE metadata.id_collection = #{idCollection}
+        AND metadata.type = #{type}
+
+    </select>
+
+    <select id="getGroupsMetadataByMedia" resultMap="catalog">
+
+        SELECT
+            metadata.id_metadata, metadata.name
+        FROM metadata INNER JOIN media_metadata ON metadata.id_metadata = media_metadata.id_metadata
+        WHERE media_metadata.id_media = #{idMedia}
+        AND metadata.type = 'group'
+        ORDER BY metadata.name ASC
+
+    </select>
+
+    <select id="getTagsMetadataByMedia" resultMap="catalog">
+
+        SELECT
+            metadata.id_metadata, metadata.name
+        FROM metadata INNER JOIN media_metadata ON metadata.id_metadata = media_metadata.id_metadata
+        WHERE media_metadata.id_media = #{idMedia}
+        AND metadata.type = 'tag'
+        ORDER BY metadata.name ASC
+
+    </select>
+
+    <insert id="insert">
+
+        INSERT INTO metadata(
+            name, type, id_collection, created_at, updated_at
+        ) VALUES (
+            #{name}, #{type}, #{collection.idCollection}, #{createdAt}, #{updatedAt}
+        )
+
+    </insert>
+
+    <insert id="insertIfNeeded">
+
+        INSERT OR IGNORE INTO metadata(
+            name, type, id_collection, created_at, updated_at
+        )
+        VALUES (
+            #{name}, #{type}, #{idCollection}, STRFTIME('%s'), STRFTIME('%s')
+        )
+
+    </insert>
+
+    <insert id="insertIfNeededBulk">
+
+        INSERT OR IGNORE INTO metadata(
+            name, type, id_collection, created_at, updated_at
+        )
+        VALUES
+        <foreach item="name" collection="names" open="(" separator="," close=")">
+            #{name}, #{type}, #{idCollection}, STRFTIME('%s'), STRFTIME('%s')
+        </foreach>
+
+    </insert>
+
+    <update id="update">
+
+        UPDATE metadata SET
+            name = #{name},
+            updated_at = #{updatedAt}
+        WHERE id_metadata = #{idMetadata}
+
+    </update>
+
+    <delete id="delete">
+
+        DELETE
+        FROM metadata
+        WHERE id_metadata = #{idMetadata}
+
+    </delete>
+
+    <delete id="deleteByIdCollection">
+
+        DELETE
+        FROM metadata
+        WHERE id_collection = #{idCollection}
+
+    </delete>
+
+</mapper>

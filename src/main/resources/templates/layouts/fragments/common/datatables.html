@@ -1,0 +1,23 @@
+<th:block th:fragment="datatables">
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            let deleteUrl = "";
+
+            $("#dataTable").DataTable(dataTableConf);
+
+            $(".destroy").on("click", function() {
+                deleteUrl = $(this).data("href");
+                $("#deleteRecordName").text($(this).data("name"));
+                $('#confirmDeleteModal').modal();
+            });
+
+            $("#deleteModalConfirm").on("click", function() {
+                $('#confirmDeleteModal').modal("hide");
+                window.location.href = deleteUrl;
+            });
+        });
+    </script>
+</th:block>

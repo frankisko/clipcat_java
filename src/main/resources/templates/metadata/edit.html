@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Metadata / Edit</title>
+</head>
+
+<body>
+    <th:block layout:fragment="sidebar" th:insert="~{layouts/fragments/common/sidebar :: sidebar}"></th:block>
+
+    <th:block layout:fragment="content">
+        <h1 class="h3 mb-2 text-gray-800">[[ ${#strings.capitalize(plural)} ]]</h1>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <div class="text-left">
+                                <span><a href="#">Edit [[ ${type} ]]</a></span>
+                            </div>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="form" th:action="@{'/metadata/' + ${idMetadata} + '/update' }" method="POST" th:object="${metadataRecord}" role="form">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" name="name" th:field="*{name}" aria-describedby="nameHelp" placeholder="Name" />
+                                <small id="nameHelp" class="form-text text-muted">Name for [[ ${type} ]].</small>
+                                <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                            </div>
+                            <input type="hidden" th:field="*{type}" />
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <a th:href="@{/metadata/index(type=${type})}" class="btn btn-danger">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

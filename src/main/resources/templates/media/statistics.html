@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/base.html}">
+<head>
+    <title>Clipcat - Media statistics</title>
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <th:block layout:fragment="sidebar" th:insert="~{layouts/fragments/common/sidebar :: sidebar}"></th:block>
+
+    <th:block layout:fragment="content">
+        <h1 class="h3 mb-2 text-gray-800">Media statistics</h1>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <span th:if="${rows.empty}">No records found</span>
+                        <div th:unless="${rows.empty}" class="table-responsive">
+                            <table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Size</th>
+                                        <th>Created at</th>
+                                        <th>Last viewed</th>
+                                        <th>Release date</th>
+                                        <th>Views</th>
+                                        <th>Rating</th>
+                                        <th>Tags</th>
+                                        <th>Url?</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="row : ${rows}">
+                                        <td th:text="${row.name}"></td>
+                                        <td th:text="${row.size}"></td>
+                                        <td th:text="${row.createdAt != null} ? ${#dates.format(row.createdAt * 1000, 'yyyy-MM-dd HH:mm:ss')} : ' '"></td>
+                                        <td th:text="${row.lastViewed != null} ? ${#dates.format(row.lastViewed * 1000, 'yyyy-MM-dd HH:mm:ss')} : ' '"></td>
+                                        <td th:text="${row.releaseDate != null} ? ${#dates.format(row.releaseDate * 1000, 'yyyy-MM-dd')} : ' '"></td>
+                                        <td th:text="${row.viewCount}"></td>
+                                        <td th:text="${row.rating}"></td>
+                                        <td th:text="${row.tagsCount}"></td>
+                                        <td>
+                                            <th:block th:if="${row.url == null}">
+                                                No
+                                            </th:block>
+                                            <th:block th:unless="${row.url == null}">
+                                                Yes
+                                            </th:block>
+                                        <td>
+                                            <a th:href="@{'/media/' + ${row.idMedia}+ '/info'}" title="Info"><i class="fa fa-info-circle"> </i></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block layout:fragment="scripts_footer">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/filesize/9.0.11/filesize.min.js"></script>
+
+        <script type="text/javascript">
+            var dataTableConf = {
+                "columnDefs": [
+                    {
+                        "render": function ( data, type, row ) {
+                            if ( type === "display" ) {
+                                return filesize(data);
+                            }
+                            return data;
+                        },
+                        "targets": 1
+                    },
+                    {
+                        "targets": 9,
+                        "orderable": false
+                    }
+                ]
+            };
+        </script>
+
+        <th:block th:insert="~{layouts/fragments/common/datatables :: datatables}"></th:block>
+    </th:block>
+</body>
+</html>

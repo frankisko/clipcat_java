@@ -1,0 +1,11 @@
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow" th:fragment="topbar">
+
+    <!-- Sidebar Toggle (Topbar) -->
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+        <i class="fa fa-bars"></i>
+    </button>
+
+    <!-- Topbar Search -->
+    <th:block th:insert="~{layouts/fragments/basic_search/form :: basic_search_form}"></th:block>
+    <th:block th:insert="~{layouts/fragments/advanced_search/modal :: advanced_search_modal}"></th:block>
+</nav>

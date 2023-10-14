@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.frankisko.clipcat.dao.LocationMapper">
+    <resultMap id="locationRecord" type="com.frankisko.clipcat.dto.LocationRecord">
+        <result property="location" column="location"/>
+    </resultMap>
+
+    <resultMap id="catalog" type="com.frankisko.clipcat.dto.Catalog">
+        <id property="id" column="id_location"/>
+        <result property="name" column="location"/>
+    </resultMap>
+
+    <select id="getById" resultMap="locationRecord">
+
+        SELECT
+            locations.location
+        FROM locations
+        WHERE locations.id_location = #{idLocation}
+
+    </select>
+
+    <select id="getCatalog" resultMap="catalog">
+
+        SELECT
+            locations.id_location, locations.location
+        FROM locations
+        WHERE locations.id_collection = #{idCollection}
+
+    </select>
+
+    <insert id="insertIfNeeded">
+
+        INSERT OR IGNORE INTO locations
+            (location, id_collection)
+        VALUES
+            (#{location}, #{collection.idCollection})
+
+    </insert>
+
+    <delete id="deleteObsolete">
+
+        DELETE
+        FROM locations
+        WHERE locations.id_location IN (
+            SELECT locations.id_location
+            FROM locations LEFT JOIN media on locations.id_location = media.id_location
+            WHERE media.id_media IS NULL
+        )
+
+    </delete>
+
+    <delete id="deleteByIdCollection">
+
+        DELETE
+        FROM locations
+        WHERE locations.id_collection = #{idCollection}
+
+    </delete>
+
+</mapper>

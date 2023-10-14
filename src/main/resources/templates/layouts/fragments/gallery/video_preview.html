@@ -1,0 +1,80 @@
+<th:block th:fragment="video_preview">
+    <script type="text/x-template" id="video-preview-template">
+        <div>
+            <img v-show="showThumbnail" :src="thumbnailUrl" class="card-img-top" @mouseover="playVideo"/>
+            <img v-show="showCover" :src="coverUrl" class="card-img-top" @mouseover="playVideo"/>
+            <video v-show="showVideo" muted style="width: 100%;height: auto;" ref="videoRef" @mouseout="stopVideo" @click="openVideo">
+                <source src="" loop type="video/mp4">
+                    Your browser does not support the video tag.
+            </video>
+        </div>
+    </script>
+
+    <script type="text/javascript">
+        Vue.component("video-preview", {
+            template: '#video-preview-template',
+            props: ['thumbnailUrl', 'coverUrl', 'videoUrl', 'idMedia'],
+            data : function () {
+                return {
+                    showThumbnail: true,
+                    showCover: false,
+                    showVideo: false,
+                    showImageMode : 1 //1 thumbnail 2 cover
+                };
+            },
+            methods: {
+                playVideo : function() {
+                    if (this.videoUrl != '') {
+                        if (this.showImageMode == 1) {
+                            this.showThumbnail = false;
+                        } else if (this.showImageMode == 2) {
+                            this.showCover = false;
+                        }
+
+                        this.$refs.videoRef.src = this.videoUrl;
+                        this.$refs.videoRef.play();
+
+                        this.showVideo = true;
+                    }
+                },
+                stopVideo : function() {
+                    this.$refs.videoRef.src = '';
+
+                    this.$refs.videoRef.pause();
+                    this.$refs.videoRef.currentTime = 0;
+
+                    this.showVideo = false;
+                    if (this.showImageMode == 1) {
+                        this.showThumbnail = true;
+                    } else if (this.showImageMode == 2) {
+                        this.showCover = true;
+                    }
+                },
+                openVideo : function() {
+                    var self = this;
+
+                    axios.get('/media/' + self.idMedia + '/open')
+                        .then(function (response) {
+                            console.log("done");
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                }
+            },
+            mounted: function() {
+                this.$root.$on('show-image-mode', (mode) => {
+                    this.showImageMode = mode;
+
+                    if (mode == 1) {
+                        this.showThumbnail = true;
+                        this.showCover = false;
+                    } else if (mode == 2) {
+                        this.showThumbnail = false;
+                        this.showCover = true;
+                    }
+                });
+            }
+        });
+    </script>
+</th:block>
